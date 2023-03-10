@@ -31,12 +31,13 @@ class Game:
         self.gameBoard = game_board
         self.pelletColor = (222, 161, 133)
         self.originalGameBoard = original_board
-        self.ghosts = [
-            ghost_obj.Ghost(14.0, 13.5, "red", 0, self.ElementPath, square, spriteRatio, spriteOffset, game_board, self, 0, (4, 25)),
-            ghost_obj.Ghost(17.0, 11.5, "blue", 1, self.ElementPath, square, spriteRatio, spriteOffset, game_board, self, 1, (4, 2)),
-            ghost_obj.Ghost(17.0, 13.5, "pink", 2, self.ElementPath, square, spriteRatio, spriteOffset, game_board, self, 2, (26, 2)),
-            ghost_obj.Ghost(17.0, 15.5, "orange", 3, self.ElementPath, square, spriteRatio, spriteOffset, game_board, self, 3, (26, 25))
-        ]
+        self.ghosts = []
+#        self.ghosts = [
+#            ghost_obj.Ghost(14.0, 13.5, "red", 0, self.ElementPath, square, spriteRatio, spriteOffset, game_board, self, 0, (4, 25)),
+#            ghost_obj.Ghost(17.0, 11.5, "blue", 1, self.ElementPath, square, spriteRatio, spriteOffset, game_board, self, 1, (4, 2)),
+#            ghost_obj.Ghost(17.0, 13.5, "pink", 2, self.ElementPath, square, spriteRatio, spriteOffset, game_board, self, 2, (26, 2)),
+#            ghost_obj.Ghost(17.0, 15.5, "orange", 3, self.ElementPath, square, spriteRatio, spriteOffset, game_board, self, 3, (26, 25))
+#        ]
         self.pacman = player.Pacman(26.0, 13.5, self.ElementPath, square, spriteRatio, spriteOffset, game_board, screen) # Center of Second Last Row
         self.total = self.getCount()
         self.ghostScore = 200
@@ -68,14 +69,16 @@ class Game:
 
     # Reset after death
     def reset(self):
-        self.ghosts = [
-            ghost_obj.Ghost(14.0, 13.5, "red", 0, self.ElementPath, self.square, self.spriteRatio, self.spriteOffset, self.gameBoard, self, 0, (4, 25)),
-            ghost_obj.Ghost(17.0, 11.5, "blue", 1, self.ElementPath, self.square, self.spriteRatio, self.spriteOffset, self.gameBoard, self, 1, (4, 2)),
-            ghost_obj.Ghost(17.0, 13.5, "pink", 2, self.ElementPath, self.square, self.spriteRatio, self.spriteOffset, self.gameBoard, self, 2, (26, 2)),
-            ghost_obj.Ghost(17.0, 15.5, "orange", 3, self.ElementPath, self.square, self.spriteRatio, self.spriteOffset, self.gameBoard, self, 3, (26, 25))
-        ]
+        self.ghosts = []
+#        self.ghosts = [
+#            ghost_obj.Ghost(14.0, 13.5, "red", 0, self.ElementPath, self.square, self.spriteRatio, self.spriteOffset, self.gameBoard, self, 0, (4, 25)),
+#            ghost_obj.Ghost(17.0, 11.5, "blue", 1, self.ElementPath, self.square, self.spriteRatio, self.spriteOffset, self.gameBoard, self, 1, (4, 2)),
+#            ghost_obj.Ghost(17.0, 13.5, "pink", 2, self.ElementPath, self.square, self.spriteRatio, self.spriteOffset, self.gameBoard, self, 2, (26, 2)),
+#            ghost_obj.Ghost(17.0, 15.5, "orange", 3, self.ElementPath, self.square, self.spriteRatio, self.spriteOffset, self.gameBoard, self, 3, (26, 25))
+#        ]
         for ghost in self.ghosts:
             ghost.setTarget()
+
         self.pacman = player.Pacman(26.0, 13.5, self.ElementPath, self.square, self.spriteRatio, self.spriteOffset, self.gameBoard, self.screen)
         self.lives -= 1
         self.paused = True
@@ -147,7 +150,7 @@ class Game:
             self.pacman.update()
             self.pacman.col %= len(self.gameBoard[0])
             if self.pacman.row % 1.0 == 0 and self.pacman.col % 1.0 == 0:
-                if self.gameBoard[int(self.pacman.row)][int(self.pacman.col)] == 2:
+                if self.gameBoard[int(self.pacman.row)][int(self.pacman.col)] == 2 or self.gameBoard[int(self.pacman.row)][int(self.pacman.col)] == 7:
                     self.playMusic("munch_1.wav")
                     self.gameBoard[int(self.pacman.row)][int(self.pacman.col)] = 1
                     self.score += 10
@@ -204,7 +207,7 @@ class Game:
                     self.screen.blit(tileImage, (j * self.square, i * self.square, self.square, self.square))
 
                     # pygame.draw.rect(screen, (0, 0, 255),(j * square, i * square, square, square)) # (x, y, width, height)
-                elif self.gameBoard[i][j] == 2: # Draw Tic-Tak
+                elif self.gameBoard[i][j] == 2 or self.gameBoard[i][j] == 7: # Draw Tic-Tak
                     pygame.draw.circle(self.screen, self.pelletColor,(j * self.square + self.square//2, i * self.square + self.square//2), self.square//4)
                 elif self.gameBoard[i][j] == 5: #Black Special Tic-Tak
                     pygame.draw.circle(self.screen, (0, 0, 0),(j * self.square + self.square//2, i * self.square + self.square//2), self.square//2)
@@ -483,7 +486,7 @@ class Game:
         total = 0
         for i in range(3, len(self.gameBoard) - 2):
             for j in range(len(self.gameBoard[0])):
-                if self.gameBoard[i][j] == 2 or self.gameBoard[i][j] == 5 or self.gameBoard[i][j] == 6:
+                if self.gameBoard[i][j] == 2 or self.gameBoard[i][j] == 5 or self.gameBoard[i][j] == 6 or self.gameBoard[i][j] == 7:
                     total += 1
         return total
 

@@ -1,56 +1,51 @@
 import pygame
 import copy
 import game as game_obj
-
+from random import randint
 
 pygame.init()
 pygame.mixer.init()
 pygame.mixer.music.get_busy()
 
-
-
-
-# 28 Across 31 Tall 1: Empty Space 2: Tic-Tak 3: Wall 4: Ghost safe-space 5: Special Tic-Tak
+# 28 Across 31 Tall 1: Empty Space 2: Tic-Tak 3: Wall 4: Ghost safe-space 5: Special Tic-Tak 7: Turn Decision (pellet) 8: Turn Decision (empty space)
 originalGameBoard = [
     [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
     [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
     [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
     [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
-    [3,2,2,2,2,2,2,2,2,2,2,2,2,3,3,2,2,2,2,2,2,2,2,2,2,2,2,3],
+    [3,7,2,2,2,2,7,2,2,2,2,2,7,3,3,7,2,2,2,2,2,7,2,2,2,2,7,3],
     [3,2,3,3,3,3,2,3,3,3,3,3,2,3,3,2,3,3,3,3,3,2,3,3,3,3,2,3],
     [3,6,3,3,3,3,2,3,3,3,3,3,2,3,3,2,3,3,3,3,3,2,3,3,3,3,6,3],
     [3,2,3,3,3,3,2,3,3,3,3,3,2,3,3,2,3,3,3,3,3,2,3,3,3,3,2,3],
-    [3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3],
+    [3,7,2,2,2,2,7,2,2,7,2,2,7,2,2,7,2,2,7,2,2,7,2,2,2,2,7,3],
     [3,2,3,3,3,3,2,3,3,2,3,3,3,3,3,3,3,3,2,3,3,2,3,3,3,3,2,3],
     [3,2,3,3,3,3,2,3,3,2,3,3,3,3,3,3,3,3,2,3,3,2,3,3,3,3,2,3],
-    [3,2,2,2,2,2,2,3,3,2,2,2,2,3,3,2,2,2,2,3,3,2,2,2,2,2,2,3],
+    [3,7,2,2,2,2,7,3,3,7,2,2,7,3,3,7,2,2,7,3,3,7,2,2,2,2,7,3],
     [3,3,3,3,3,3,2,3,3,3,3,3,1,3,3,1,3,3,3,3,3,2,3,3,3,3,3,3],
     [3,3,3,3,3,3,2,3,3,3,3,3,1,3,3,1,3,3,3,3,3,2,3,3,3,3,3,3],
-    [3,3,3,3,3,3,2,3,3,1,1,1,1,1,1,1,1,1,1,3,3,2,3,3,3,3,3,3],
+    [3,3,3,3,3,3,2,3,3,8,1,1,8,1,1,8,1,1,8,3,3,2,3,3,3,3,3,3],
     [3,3,3,3,3,3,2,3,3,1,3,3,3,3,3,3,3,3,1,3,3,2,3,3,3,3,3,3],
     [3,3,3,3,3,3,2,3,3,1,3,4,4,4,4,4,4,3,1,3,3,2,3,3,3,3,3,3],
-    [1,1,1,1,1,1,2,1,1,1,3,4,4,4,4,4,4,3,1,1,1,2,1,1,1,1,1,1], # Middle Lane Row: 14
+    [1,1,1,1,1,1,7,1,1,8,3,4,4,4,4,4,4,3,8,1,1,7,1,1,1,1,1,1], # Middle Lane Row: 14
     [3,3,3,3,3,3,2,3,3,1,3,4,4,4,4,4,4,3,1,3,3,2,3,3,3,3,3,3],
     [3,3,3,3,3,3,2,3,3,1,3,3,3,3,3,3,3,3,1,3,3,2,3,3,3,3,3,3],
-    [3,3,3,3,3,3,2,3,3,1,1,1,1,1,1,1,1,1,1,3,3,2,3,3,3,3,3,3],
+    [3,3,3,3,3,3,2,3,3,8,1,1,1,1,1,1,1,1,8,3,3,2,3,3,3,3,3,3],
     [3,3,3,3,3,3,2,3,3,1,3,3,3,3,3,3,3,3,1,3,3,2,3,3,3,3,3,3],
     [3,3,3,3,3,3,2,3,3,1,3,3,3,3,3,3,3,3,1,3,3,2,3,3,3,3,3,3],
-    [3,2,2,2,2,2,2,2,2,2,2,2,2,3,3,2,2,2,2,2,2,2,2,2,2,2,2,3],
+    [3,7,2,2,2,2,7,2,2,7,2,2,7,3,3,7,2,2,7,2,2,7,2,2,2,2,7,3],
     [3,2,3,3,3,3,2,3,3,3,3,3,2,3,3,2,3,3,3,3,3,2,3,3,3,3,2,3],
     [3,2,3,3,3,3,2,3,3,3,3,3,2,3,3,2,3,3,3,3,3,2,3,3,3,3,2,3],
-    [3,6,2,2,3,3,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,3,3,2,2,6,3],
+    [3,6,2,7,3,3,7,2,2,7,2,2,7,1,1,7,2,2,7,2,2,7,3,3,7,2,6,3],
     [3,3,3,2,3,3,2,3,3,2,3,3,3,3,3,3,3,3,2,3,3,2,3,3,2,3,3,3],
     [3,3,3,2,3,3,2,3,3,2,3,3,3,3,3,3,3,3,2,3,3,2,3,3,2,3,3,3],
-    [3,2,2,2,2,2,2,3,3,2,2,2,2,3,3,2,2,2,2,3,3,2,2,2,2,2,2,3],
+    [3,7,2,7,2,2,7,3,3,7,2,2,7,3,3,7,2,2,7,3,3,7,2,2,7,2,7,3],
     [3,2,3,3,3,3,3,3,3,3,3,3,2,3,3,2,3,3,3,3,3,3,3,3,3,3,2,3],
     [3,2,3,3,3,3,3,3,3,3,3,3,2,3,3,2,3,3,3,3,3,3,3,3,3,3,2,3],
-    [3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3],
+    [3,7,2,2,2,2,2,2,2,2,2,2,7,2,2,7,2,2,2,2,2,2,2,2,2,2,7,3],
     [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
     [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
     [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
 ]
-
-print(originalGameBoard[4][25], originalGameBoard[4][2], originalGameBoard[26][2], originalGameBoard[26][25])
 
 # Constants
 square = 25 # Size of each unit square
@@ -162,6 +157,7 @@ onLaunchScreen = True
 displayLaunchScreen()
 
 while running:
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -169,19 +165,8 @@ while running:
         elif event.type == pygame.KEYDOWN:
             game.paused = False
             game.started = True
-            if event.key == pygame.K_w:
-                if not onLaunchScreen:
-                    game.pacman.newDir = 0
-            elif event.key == pygame.K_d:
-                if not onLaunchScreen:
-                    game.pacman.newDir = 1
-            elif event.key == pygame.K_s:
-                if not onLaunchScreen:
-                    game.pacman.newDir = 2
-            elif event.key == pygame.K_a:
-                if not onLaunchScreen:
-                    game.pacman.newDir = 3
-            elif event.key == pygame.K_SPACE:
+
+            if event.key == pygame.K_SPACE:
                 if onLaunchScreen:
                     onLaunchScreen = False
                     game.paused = True
@@ -196,3 +181,20 @@ while running:
 
     if not onLaunchScreen:
         game.update()
+
+    if originalGameBoard[int(game.pacman.row)][int(game.pacman.col)] == 7 or originalGameBoard[int(game.pacman.row)][int(game.pacman.col)] == 6 or originalGameBoard[int(game.pacman.row)][int(game.pacman.col)] == 8:
+        game.pacman.newDir = randint(0, 3)
+'''
+            if event.key == pygame.K_w:
+                if not onLaunchScreen:
+                    game.pacman.newDir = 0
+            elif event.key == pygame.K_d:
+                if not onLaunchScreen:
+                    game.pacman.newDir = 1
+            elif event.key == pygame.K_s:
+                if not onLaunchScreen:
+                    game.pacman.newDir = 2
+            elif event.key == pygame.K_a:
+                if not onLaunchScreen:
+                    game.pacman.newDir = 3
+'''

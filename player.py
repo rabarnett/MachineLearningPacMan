@@ -10,7 +10,7 @@ class Pacman:
         self.pacSpeed = 1/4
         self.mouthChangeDelay = 5
         self.mouthChangeCount = 0
-        self.dir = 0 # 0: North, 1: East, 2: South, 3: West
+        self.dir = 1 # 0: North, 1: East, 2: South, 3: West
         self.newDir = 0
         self.ElementPath = element_path
         self.square = square
